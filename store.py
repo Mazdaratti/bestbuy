@@ -1,4 +1,14 @@
 class Store:
+    """
+        A class to represent a store that manages a collection of products.
+
+        The Store class allows adding, removing, and querying products.
+        It also facilitates processing orders for multiple products, calculating the total cost,
+        and managing inventory quantities.
+
+        Attributes:
+            products (list): A list of Product instances available in the store.
+        """
     def __init__(self, products=None):
         """
         Initializes the store with a list of products.

@@ -102,16 +102,20 @@ class Product:
             float: The total cost of the purchase, rounded to two decimal places.
 
         Raises:
-            ValueError: If the quantity to buy is not a positive integer or is greater than the available stock.
+            ValueError: If the quantity to buy is not a positive integer or is greater than the available stock or
+                        if the product is inactive.
         """
+        if not self.active:
+            raise ValueError("Product Inactive")
         if not isinstance(quantity, int) or quantity <= 0:
             raise ValueError("Quantity to buy must be a number greater than zero.")
         if self.quantity < quantity:
-            raise ValueError(f"Quantity requested is larger than the available stock ({self.quantity}).")
+            raise ValueError(f"Quantity requested for {self.name} is larger than what exists.")
 
         # Update the quantity
         self.quantity -= quantity
-
+        if self.quantity == 0:
+            self.deactivate()
         # Calculate and return the total cost
         return round(self.price * quantity, 2)
 

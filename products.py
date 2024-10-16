@@ -83,12 +83,12 @@ class Product:
         Displays the product details.
 
         Returns:
-            str: The product details if the product is active, otherwise indicates it's out of stock.
+            str: The product details if the product is active,
+                 otherwise indicates it's out of stock.
         """
         if self.is_active():
             return f"{self.name}, Price: {self.price}, Quantity: {self.quantity}"
-        else:
-            return f"{self.name} is out of stock."
+        return f"{self.name} is out of stock."
 
     def buy(self, quantity):
         """
@@ -101,8 +101,8 @@ class Product:
             float: The total cost of the purchase, rounded to two decimal places.
 
         Raises:
-            ValueError: If the quantity to buy is not a positive integer or is greater than the available stock or
-                        if the product is inactive.
+            ValueError: If the quantity to buy is not a positive integer or is greater
+            than the available stock or if the product is inactive.
         """
         if not self.active:
             raise ValueError("Product Inactive")

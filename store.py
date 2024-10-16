@@ -1,3 +1,57 @@
+def validate_order_input(product_input, quantity_input, active_products):
+    """
+    Validates the product and quantity inputs provided by the user.
+
+    Args:
+        product_input (str): The product index input from the user.
+        quantity_input (str): The quantity input from the user.
+        active_products (list): The list of available products.
+
+    Returns:
+        tuple: (product, quantity) if valid, raises a ValueError otherwise.
+    """
+    try:
+        product_index = int(product_input)
+        quantity = int(quantity_input)
+
+        if not 1 <= product_index <= len(active_products):
+            raise ValueError("Invalid product index.")
+        product = active_products[product_index - 1]
+
+        if quantity < 1:
+            raise ValueError("Invalid quantity.")
+        return product, quantity
+    except (ValueError, TypeError) as conversion_error:
+        raise ValueError("Error adding product! "
+                         "Please enter a valid product "
+                         "number and quantity.") from conversion_error
+
+
+def get_order_input(active_products):
+    """
+    Prompts the user for product and quantity input, validates them, and returns the values.
+
+    Args:
+        active_products (list): The list of available products.
+
+    Returns:
+        tuple: (Product, quantity) if valid, (None, None) if the user wants to finish.
+    """
+    product_input = input("Which product # do you want? ").strip()
+    quantity_input = input("What amount do you want? ").strip()
+
+    if not product_input or not quantity_input:
+        return None, None  # User wants to finish ordering
+
+    try:
+        product, quantity = (validate_order_input
+                             (product_input, quantity_input, active_products))
+        return product, quantity
+    except ValueError as input_error:
+        print(f"Error adding product: {input_error}")
+        return None, None  # Return None to indicate invalid input
+
+
 class Store:
     """
         A class to represent a store that manages a collection of products.
@@ -99,8 +153,7 @@ class Store:
         for product, quantity in shopping_list:
             if product not in self.products:
                 raise ValueError(f'There is no {product.name} in the store.')
-            else:
-                total_price += product.buy(quantity)
+            total_price += product.buy(quantity)
         return total_price
 
     def make_order(self):
@@ -118,7 +171,7 @@ class Store:
                 print("No products available for ordering.")
                 break
 
-            product, quantity = self.get_order_input(active_products)
+            product, quantity = get_order_input(active_products)
 
             if product is None and quantity is None:  # User wants to finish ordering
                 break
@@ -128,55 +181,6 @@ class Store:
                 print("Product added to list!")
 
         self.process_order(order_items)
-
-    def get_order_input(self, active_products):
-        """
-        Prompts the user for product and quantity input, validates them, and returns the values.
-
-        Args:
-            active_products (list): The list of available products.
-
-        Returns:
-            tuple: (Product, quantity) if valid, (None, None) if the user wants to finish.
-        """
-        product_input = input("Which product # do you want? ").strip()
-        quantity_input = input("What amount do you want? ").strip()
-
-        if not product_input or not quantity_input:
-            return None, None  # User wants to finish ordering
-
-        try:
-            product, quantity = self.validate_order_input(product_input, quantity_input, active_products)
-            return product, quantity
-        except ValueError as e:
-            print(f"Error adding product: {e}")
-            return None, None  # Return None to indicate invalid input
-
-    def validate_order_input(self, product_input, quantity_input, active_products):
-        """
-        Validates the product and quantity inputs provided by the user.
-
-        Args:
-            product_input (str): The product index input from the user.
-            quantity_input (str): The quantity input from the user.
-            active_products (list): The list of available products.
-
-        Returns:
-            tuple: (product, quantity) if valid, raises a ValueError otherwise.
-        """
-        try:
-            product_index = int(product_input)
-            quantity = int(quantity_input)
-
-            if not (1 <= product_index <= len(active_products)):
-                raise ValueError("Invalid product index.")
-            product = active_products[product_index - 1]
-
-            if quantity < 1:
-                raise ValueError("Invalid quantity.")
-            return product, quantity
-        except (ValueError, TypeError):
-            raise ValueError("Error adding product! Please enter a valid product number and quantity.")
 
     def process_order(self, order_items):
         """
@@ -194,6 +198,5 @@ class Store:
             if total_price:
                 print("*" * 8)
                 print(f"Order made! Total payment: ${total_price:.2f}.")
-        except ValueError as e:
-            print(f"Error while making order: {e}")
-
+        except ValueError as amount_error:
+            print(f"Error while making order: {amount_error}")

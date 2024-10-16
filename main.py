@@ -3,16 +3,21 @@ import products
 import store
 
 
-def exit_command(not_used):
+def exit_command(_):
     """
     Exits the program by printing a farewell message and terminating the process.
     """
-    print("Thank you for visiting Best Buy! We hope to see you again soon."
-          " Goodbye!")
+    print("Thank you for visiting Best Buy! We hope to see you again soon. Goodbye!")
     sys.exit(0)
 
 
 def list_products(best_buy):
+    """
+    Lists all the products available in the store.
+
+    Args:
+        best_buy (Store): The store instance containing the products.
+    """
     products_list = [product.show() for product in best_buy.get_all_products()]
     print("-" * 6)
     for index, description in enumerate(products_list, start=1):
@@ -21,12 +26,50 @@ def list_products(best_buy):
 
 
 def show_total_amount(best_buy):
+    """
+    Shows the total number of items in the store.
+
+    Args:
+        best_buy (Store): The store instance containing the products.
+    """
     print(f"Total of {best_buy.get_total_quantity()} items in store")
 
 
+def validate_order_input(product_input, quantity_input, active_products):
+    """
+    Validates the product and quantity inputs provided by the user.
+
+    Args:
+        product_input (str): The product index input from the user.
+        quantity_input (str): The quantity input from the user.
+        active_products (list): The list of available products.
+
+    Returns:
+        tuple: (product, quantity) if valid, raises a ValueError otherwise.
+    """
+    try:
+        product_index = int(product_input)
+        quantity = int(quantity_input)
+
+        if not (1 <= product_index <= len(active_products)):
+            raise ValueError("Invalid product index.")
+        product = active_products[product_index - 1]
+
+        if quantity < 1:
+            raise ValueError("Invalid quantity.")
+        return product, quantity
+    except (ValueError, TypeError):
+        raise ValueError("Error adding product! Please enter a valid product number and quantity.")
+
+
 def make_order(best_buy):
+    """
+    Handles the process of making an order in the store.
+
+    Args:
+        best_buy (Store): The store instance containing the products.
+    """
     order_cart = {}
-    order_items = []
     list_products(best_buy)
     print("When you want to finish the order, enter an empty text.")
 
@@ -43,30 +86,22 @@ def make_order(best_buy):
             break
 
         try:
-            product_index = int(product_input)
-            quantity = int(quantity_input)
-            if not (1 <= product_index <= len(active_products)):
-                raise ValueError("Invalid product index.")
-            product = active_products[product_index - 1]
-            if quantity < 1:
-                raise ValueError("Invalid quantity.")
-        except (ValueError, TypeError):
-            print(f"Error adding product!")
+            product, quantity = validate_order_input(product_input, quantity_input, active_products)
+            if product in order_cart:
+                order_cart[product] += quantity
+            else:
+                order_cart[product] = quantity
+            print("Product added to list!")
+        except ValueError as e:
+            print(e)
             continue
 
-        if product in order_cart:
-            order_cart[product] += quantity
-        else:
-            order_cart[product] = quantity
-        print("Product added to list!")
-
-    order_items = [(product, amount) for product, amount in order_cart.items()]
-
     # Process the order
-    if not order_items:
+    if not order_cart:
         print("No products to order!")
         return
 
+    order_items = [(product, amount) for product, amount in order_cart.items()]
     try:
         total_price = best_buy.order(order_items)
         if total_price:
@@ -79,6 +114,7 @@ def make_order(best_buy):
 def display_menu(menu_entries):
     """
     Displays the menu to the user.
+
     Args:
         menu_entries (list): A list of tuples where each tuple contains a menu option description
                              and the corresponding function to call.
@@ -101,18 +137,23 @@ def get_user_choice(prompt, valid_range=None):
     Returns:
         int or None: The user's choice if valid, or None if the input is invalid.
     """
-    while True:
-        user_input = input(prompt).strip()
-        try:
-            choice = int(user_input)
-            if valid_range is None or choice in valid_range:
-                return choice
-            return None
-        except ValueError:
-            return None
+    user_input = input(prompt).strip()
+    try:
+        choice = int(user_input)
+        if valid_range is None or choice in valid_range:
+            return choice
+        return None
+    except ValueError:
+        return None
 
 
 def start(best_buy):
+    """
+    Starts the interactive store program.
+
+    Args:
+        best_buy (Store): The store instance containing the products.
+    """
     menu_entries = [
         ("List all products in store", list_products),
         ("Show total amount in store", show_total_amount),
@@ -123,19 +164,22 @@ def start(best_buy):
         display_menu(menu_entries)
         choice = get_user_choice("Please choose a number: ", range(1, len(menu_entries) + 1))
         if not choice:
-            print(f"Error with your choice! Try again.")
+            print("Error with your choice! Try again.")
             continue
         menu_entries[choice - 1][1](best_buy)
 
 
 def main():
-    product_list = [products.Product("MacBook Air M2", price=1450, quantity=100),
-                    products.Product("Bose QuietComfort Earbuds", price=250, quantity=500),
-                    products.Product("Google Pixel 7", price=500, quantity=250)
-                    ]
+    """
+    Main function to initialize the store and start the program.
+    """
+    product_list = [
+        products.Product("MacBook Air M2", price=1450, quantity=100),
+        products.Product("Bose QuietComfort Earbuds", price=250, quantity=500),
+        products.Product("Google Pixel 7", price=500, quantity=250)
+    ]
 
     best_buy = store.Store(product_list)
-
     start(best_buy)
 
 

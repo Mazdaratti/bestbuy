@@ -81,15 +81,13 @@ class Store:
             float: The total cost of the order.
 
         Raises:
-            ValueError: If the product is not in the store or the quantity is invalid.
+            ValueError: If the product is not in the store.
         """
         total_price = 0
         for product, quantity in shopping_list:
             if product not in self.products:
                 raise ValueError(f'There is no {product.name} in the store.')
-            try:
+            else:
                 total_price += product.buy(quantity)
-            except ValueError as e:
-                print(f"Invalid quantity for {product.name}: {e}")
         return total_price
 

@@ -22,7 +22,7 @@ class Product:
             ValueError: If the name is empty, or if price or quantity are not positive numbers.
         """
         if not name:
-            raise ValueError("Name cannot be empty.")
+            raise ValueError("Name can not be empty.")
         if not isinstance(price, (int, float)) or price < 0:
             raise ValueError("Price should be a positive number.")
         if not isinstance(quantity, int) or quantity < 0:
@@ -56,8 +56,6 @@ class Product:
         self.quantity = quantity
         if self.quantity == 0:
             self.deactivate()
-        else:
-            self.activate()
 
     def is_active(self):
         """
@@ -89,7 +87,8 @@ class Product:
         """
         if self.is_active():
             return f"{self.name}, Price: {self.price}, Quantity: {self.quantity}"
-        return f"{self.name} is out of stock."
+        else:
+            return f"{self.name} is out of stock."
 
     def buy(self, quantity):
         """
@@ -113,9 +112,7 @@ class Product:
             raise ValueError(f"Quantity requested for {self.name} is larger than what exists.")
 
         # Update the quantity
-        self.quantity -= quantity
-        if self.quantity == 0:
-            self.deactivate()
+        self.set_quantity(self.quantity - quantity)
+
         # Calculate and return the total cost
         return round(self.price * quantity, 2)
-

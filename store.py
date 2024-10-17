@@ -128,7 +128,7 @@ class Store:
             try:
                 product_index = int(product_input)
                 quantity = int(quantity_input)
-                if not (1 <= product_index <= len(active_products)):
+                if not 1 <= product_index <= len(active_products):
                     raise ValueError("Invalid product index.")
                 product = active_products[product_index - 1]
                 if quantity < 1:
@@ -154,7 +154,7 @@ class Store:
         Args:
             order_cart (dict): A dictionary containing product and quantity.
         """
-        order_items = [(product, amount) for product, amount in order_cart.items()]
+        order_items = list(order_cart.items())
 
         if not order_items:
             print("No products to order!")

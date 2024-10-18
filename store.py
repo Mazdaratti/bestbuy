@@ -31,7 +31,7 @@ class Store:
             ValueError: If the product is already in the store.
         """
 
-        if product.name not in [item.name for item in self.products]:
+        if product not in self.products:
             self.products.append(product)
             print(f"{product.name} is successfully added to the store.")
         else:
@@ -47,7 +47,7 @@ class Store:
         Raises:
             ValueError: If the product is not found in the store.
         """
-        if product.name in [item.name for item in self.products]:
+        if product in self.products:
             self.products.remove(product)
             print(f"{product.name} is successfully removed from the store.")
         else:

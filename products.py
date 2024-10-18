@@ -32,6 +32,37 @@ class Product:
         self.quantity = quantity
         self.active = True
 
+    def __eq__(self, other):
+        """
+        Check if this product is equal to another product.
+
+        Equality is determined based on the product name. If the other object
+        is not an instance of the Product class, the comparison returns False.
+
+        Args:
+            other (Product): The object to compare against.
+
+        Returns:
+            bool: True if the other object is a Product with the same name,
+                  False otherwise.
+        """
+        if isinstance(other, Product):
+            return self.name == other.name
+        return False
+
+    def __hash__(self):
+        """
+        Return the hash value of the product.
+
+        The hash value is computed based on the product name, allowing
+        Product instances to be used in hash-based collections like sets
+        and dictionaries.
+
+        Returns:
+            int: The hash value of the product name.
+        """
+        return hash(self.name)
+
     def get_quantity(self):
         """
         Returns the current quantity of the product.

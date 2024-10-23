@@ -1,5 +1,5 @@
 import pytest
-from products import Product
+from products import Product, NonStockedProduct, LimitedProduct
 
 
 def test_product_initialization():
@@ -34,7 +34,7 @@ def test_negative_quantity():
     Test that Product creation with a negative quantity raises a ValueError.
     """
     with pytest.raises(ValueError, match='Quantity should be a positive number.'):
-        Product("MacBook Air M2", price=144, quantity=-12.3)
+        Product("MacBook Air M2", price=144, quantity=-12)
 
 
 def test_float_quantity():
@@ -199,3 +199,100 @@ def test_product_lt_gt():
     assert product2 < product1, "Product with lower price should be less than product with higher price"
     assert product1 > product2, "Product with higher price should be greater than product with lower price"
 
+
+# Add new tests for NonStockedProduct
+
+def test_nonstocked_product_initialization():
+    """
+    Test the initialization of the NonStockedProduct class.
+
+    Ensure that the product is created with the correct attributes.
+    """
+    product = NonStockedProduct("E-Book", price=10)
+    assert isinstance(product, NonStockedProduct)
+    assert product.quantity == 0
+    assert str(product) == "E-Book, Price: 10, Quantity: Unlimited"
+
+
+def test_nonstocked_product_quantity_setter():
+    """
+    Test that attempting to set the quantity of a NonStockedProduct raises a ValueError.
+    """
+    product = NonStockedProduct("E-Book", price=10)
+    with pytest.raises(ValueError, match="Cannot set quantity for a non-stocked product."):
+        product.quantity = 5
+
+
+def test_nonstocked_product_buy():
+    """
+    Test the buy method for NonStockedProduct.
+
+    Ensure that purchasing non-stocked products works correctly.
+    """
+    product = NonStockedProduct("E-Book", price=10)
+    total_cost = product.buy(3)
+    assert total_cost == 30
+
+    with pytest.raises(ValueError, match="Quantity to buy must be a number greater than zero."):
+        product.buy(-1)
+
+
+# Add new tests for LimitedProduct
+
+def test_limited_product_initialization():
+    """
+    Test the initialization of the LimitedProduct class.
+
+    Ensure that the product is created with the correct attributes.
+    """
+    product = LimitedProduct("Shipping Fee", price=5, quantity=10, maximum=2)
+    assert isinstance(product, LimitedProduct)
+    assert product.maximum == 2
+    assert str(product) == "Shipping Fee, Price: 5, Quantity: Limited to 2 per order!"
+
+
+def test_limited_product_buy_within_limit():
+    """
+    Test the buy method of LimitedProduct when buying within the limit.
+    """
+    product = LimitedProduct("Shipping Fee", price=5, quantity=10, maximum=2)
+    total_cost = product.buy(2)
+    assert total_cost == 10
+    assert product.quantity == 8
+
+
+def test_limited_product_buy_exceeds_limit():
+    """
+    Test that attempting to buy more than the allowed maximum raises a ValueError.
+    """
+    product = LimitedProduct("Shipping Fee", price=5, quantity=10, maximum=2)
+    with pytest.raises(ValueError, match="Only 2 is allowed from this product!"):
+        product.buy(3)
+
+
+def test_limited_product_buy_exceeds_stock():
+    """
+    Test that attempting to buy more than available stock raises a ValueError.
+    """
+    product = LimitedProduct("Shipping Fee", price=5, quantity=1, maximum=2)
+    with pytest.raises(ValueError, match="Quantity requested for Shipping Fee is larger than what exists."):
+        product.buy(2)
+
+
+def test_limited_product_inactive():
+    """
+    Test that buying from an inactive LimitedProduct raises a ValueError.
+    """
+    product = LimitedProduct("Shipping Fee", price=5, quantity=10, maximum=2)
+    product.active = False
+    with pytest.raises(ValueError, match="Product Inactive"):
+        product.buy(1)
+
+
+def test_limited_product_buy_invalid_quantity():
+    """
+    Test that attempting to buy an invalid quantity raises a ValueError.
+    """
+    product = LimitedProduct("Shipping Fee", price=5, quantity=10, maximum=2)
+    with pytest.raises(ValueError, match="Quantity to buy must be a number greater than zero."):
+        product.buy(-1)

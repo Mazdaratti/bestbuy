@@ -3,10 +3,10 @@ class Product:
     Represents a product in a store.
 
     Attributes:
-        name (str): The name of the product.
-        price (float): The price of the product.
-        quantity (int): The available quantity of the product.
-        active (bool): Indicates whether the product is active.
+        _name (str): The name of the product.
+        _price (float): The price of the product.
+        _quantity (int): The available quantity of the product.
+        _active (bool): Indicates whether the product is active.
     """
 
     def __init__(self, name, price, quantity):
@@ -22,33 +22,15 @@ class Product:
             ValueError: If the name is empty, or if price or quantity are not positive numbers.
         """
         if not name:
-            raise ValueError("Name can not be empty.")
+            raise ValueError("Product name can not be empty.")
         if not isinstance(price, (int, float)) or price < 0:
             raise ValueError("Price should be a positive number.")
         if not isinstance(quantity, int) or quantity < 0:
             raise ValueError("Quantity should be a positive number.")
-        self.name = name
-        self.price = price
-        self.quantity = quantity
-        self.active = True
-
-    def __eq__(self, other):
-        """
-        Check if this product is equal to another product.
-
-        Equality is determined based on the product name. If the other object
-        is not an instance of the Product class, the comparison returns False.
-
-        Args:
-            other (Product): The object to compare against.
-
-        Returns:
-            bool: True if the other object is a Product with the same name,
-                  False otherwise.
-        """
-        if isinstance(other, Product):
-            return self.name == other.name
-        return False
+        self._name = name
+        self._price = price
+        self._quantity = quantity
+        self._active = True
 
     def __hash__(self):
         """
@@ -61,65 +43,96 @@ class Product:
         Returns:
             int: The hash value of the product name.
         """
-        return hash(self.name)
+        return hash(self._name)
 
-    def get_quantity(self):
+    def __eq__(self, other):
+        """
+        Compare two Product instances for equality based on name and price.
+
+        Args:
+            other (Product): The other Product instance to compare with.
+
+        Returns:
+            bool: True if the name and price are equal, False otherwise.
+        """
+        if not isinstance(other, Product):
+            return NotImplemented
+        return self.name == other.name and self.price == other.price
+
+    def __lt__(self, product):
+        """Implements lower than comparison of product based on their prices"""
+        return self._price < product.price
+
+    def __gt__(self, product):
+        """Implements greater than comparison of product based on their prices"""
+        return self._price > product.price
+
+    def __str__(self):
+        """
+        Displays the product details.
+
+        Returns:
+            str: The product details
+        """
+        return f"{self.name}, Price: {self._price}, Quantity: {self._quantity}"
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def price(self):
+        """gets the product price"""
+        return self._price
+
+    @property
+    def quantity(self):
         """
         Returns the current quantity of the product.
 
         Returns:
             int: The available quantity.
         """
-        return self.quantity
+        return self._quantity
 
-    def set_quantity(self, quantity):
+    @quantity.setter
+    def quantity(self, new_quantity):
         """
         Sets the quantity of the product and updates its active status.
 
         Args:
-            quantity (int): The new quantity of the product. Must be a positive number.
+            new_quantity (int): The new quantity of the product. Must be a positive number.
 
         Raises:
             ValueError: If the quantity is not a positive integer.
         """
-        if not isinstance(quantity, int) or quantity < 0:
+        if not isinstance(new_quantity, int) or new_quantity < 0:
             raise ValueError('Quantity should be a whole positive number.')
-        self.quantity = quantity
+        self._quantity = new_quantity
         if self.quantity == 0:
-            self.deactivate()
+            self.active = False
 
-    def is_active(self):
+    @property
+    def active(self):
         """
         Checks if the product is active.
 
         Returns:
             bool: True if the product is active, False otherwise.
         """
-        return self.active
+        return self._active
 
-    def activate(self):
+    @active.setter
+    def active(self, value):
         """
-        Activates the product.
-        """
-        self.active = True
+        Sets the product's active state.
 
-    def deactivate(self):
+        Args:
+            value (bool): True to activate the product, False to deactivate it.
         """
-        Deactivates the product.
-        """
-        self.active = False
-
-    def show(self):
-        """
-        Displays the product details.
-
-        Returns:
-            str: The product details if the product is active,
-                 otherwise indicates it's out of stock.
-        """
-        if self.is_active():
-            return f"{self.name}, Price: {self.price}, Quantity: {self.quantity}"
-        return f"{self.name} is out of stock."
+        if not isinstance(value, bool):
+            raise ValueError("Active must be a boolean value.")
+        self._active = value
 
     def buy(self, quantity):
         """
@@ -132,8 +145,8 @@ class Product:
             float: The total cost of the purchase, rounded to two decimal places.
 
         Raises:
-            ValueError: If the quantity to buy is not a positive integer or is greater
-            than the available stock or if the product is inactive.
+            ValueError: If the quantity to buy is not a positive integer or
+            is greater than the available stock or if the product is inactive.
         """
         if not self.active:
             raise ValueError("Product Inactive")
@@ -143,7 +156,7 @@ class Product:
             raise ValueError(f"Quantity requested for {self.name} is larger than what exists.")
 
         # Update the quantity
-        self.set_quantity(self.quantity - quantity)
+        self.quantity = self.quantity - quantity
 
         # Calculate and return the total cost
-        return round(self.price * quantity, 2)
+        return self._price * quantity

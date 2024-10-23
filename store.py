@@ -18,7 +18,19 @@ class Store:
             products (list, optional): A list of Product instances to add to the store.
                                        Defaults to an empty list if not provided.
         """
-        self.products = products if products else []
+        self._products = products if products else []
+
+    def __contains__(self, product):
+        """
+        Check if the given Product object matches this product.
+
+        Args:
+            product (Product): The Product object to check.
+
+        Returns:
+            bool: True if the Product name matches this product's name, False otherwise.
+        """
+        return product in self._products
 
     def add_product(self, product):
         """
@@ -31,8 +43,8 @@ class Store:
             ValueError: If the product is already in the store.
         """
 
-        if product not in self.products:
-            self.products.append(product)
+        if product not in self._products:
+            self._products.append(product)
             print(f"{product.name} is successfully added to the store.")
         else:
             print(f"{product.name} is already in store.")
@@ -47,38 +59,39 @@ class Store:
         Raises:
             ValueError: If the product is not found in the store.
         """
-        if product in self.products:
-            self.products.remove(product)
+        if product in self._products:
+            self._products.remove(product)
             print(f"{product.name} is successfully removed from the store.")
         else:
             print(f"No {product.name} in store.")
 
-    def get_total_quantity(self) -> int:
+    @property
+    def total_quantity(self) -> int:
         """
         Calculates the total quantity of all products in the store.
 
         Returns:
             int: The total quantity of products.
         """
-        return sum(product.quantity for product in self.products)
+        return sum(product.quantity for product in self._products)
 
-    def get_all_products(self) -> list:
+    @property
+    def all_products(self) -> list:
         """
         Retrieves all active products in the store.
 
         Returns:
             list: A list of active Product instances.
         """
-        return [product for product in self.products if product.is_active()]
+        return [product for product in self._products if product.active]
 
     def display_products(self):
         """
         Lists all the products available in the store.
         """
-        products_list = [product.show() for product in self.get_all_products()]
         print("-" * 6)
-        for index, description in enumerate(products_list, start=1):
-            print(f"{index}. {description}")
+        for index, product in enumerate(self.all_products, start=1):
+            print(f"{index}. {product}")
         print("-" * 6)
 
     def order(self, shopping_list) -> float:
@@ -98,7 +111,7 @@ class Store:
         """
         total_price = 0
         for product, quantity in shopping_list:
-            if product not in self.products:
+            if product not in self._products:
                 raise ValueError(f'There is no {product.name} in the store.')
             total_price += product.buy(quantity)
         return total_price
@@ -114,7 +127,7 @@ class Store:
         print("When you want to finish the order, enter an empty text.")
 
         while True:
-            active_products = self.get_all_products()
+            active_products = self.all_products
             if not active_products:
                 print("No products available for ordering.")
                 break

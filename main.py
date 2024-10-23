@@ -28,7 +28,7 @@ def start(best_buy):
         if choice == '1':
             best_buy.display_products()
         elif choice == '2':
-            print(f"Total of {best_buy.get_total_quantity()} items in store")
+            print(f"Total of {best_buy.total_quantity} items in store")
         elif choice == '3':
             best_buy.make_order()
         elif choice == '4':

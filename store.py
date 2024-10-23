@@ -32,6 +32,22 @@ class Store:
         """
         return product in self._products
 
+    def __add__(self, other_store):
+        """
+        Combines the products from two stores into a new Store instance.
+
+        Args:
+            other_store (Store): Another Store instance to combine with.
+
+        Returns:
+            Store: A new Store instance containing products from both stores.
+        """
+        if not isinstance(other_store, Store):
+            raise ValueError("Can only combine with another Store instance.")
+
+        combined_products = self._products + other_store._products
+        return Store(combined_products)
+
     def add_product(self, product):
         """
         Adds a product to the store.

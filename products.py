@@ -1,3 +1,6 @@
+from promotions import Promotion
+
+
 class Product:
     """
     Represents a product in a store.
@@ -31,6 +34,7 @@ class Product:
         self._price = price
         self._quantity = quantity
         self._active = True
+        self._promotion = None
 
     def __hash__(self):
         """
@@ -75,7 +79,8 @@ class Product:
             str: The product details
         """
         if self.active:
-            return f"{self.name}, Price: {self.price}, Quantity: {self.quantity}"
+            promotion_info = f"Promotion: {self.promotion.name}" if self.promotion else "Promotion: None"
+            return f"Name: {self.name}, Price: {self.price}, Quantity: {self.quantity}, {promotion_info}"
         return f"{self.name} is out of stock."
 
     @property
@@ -137,6 +142,18 @@ class Product:
             raise ValueError("Active must be a boolean value.")
         self._active = value
 
+    @property
+    def promotion(self):
+        """Gets the current promotion for the product."""
+        return self._promotion
+
+    @promotion.setter
+    def promotion(self, promotion):
+        """Sets the current promotion for the product."""
+        if promotion and not isinstance(promotion, Promotion):
+            raise ValueError("Promotion must be an instance of the Promotion class.")
+        self._promotion = promotion
+
     def buy(self, quantity):
         """
         Attempts to buy the specified quantity of the product.
@@ -161,7 +178,9 @@ class Product:
         # Update the quantity
         self.quantity = self.quantity - quantity
 
-        # Calculate and return the total cost
+        if self.promotion:
+            return self.promotion.apply_promotion(self, quantity)
+
         return self._price * quantity
 
 
@@ -196,7 +215,8 @@ class NonStockedProduct(Product):
         Returns:
             str: The product details in the format "Name, Price: X, Quantity: Unlimited".
         """
-        return f"{self.name}, Price: {self.price}, Quantity: Unlimited"
+        promotion_info = f"Promotion: {self.promotion.name}" if self.promotion else "Promotion: None"
+        return f"{self.name}, Price: {self.price}, Quantity: Unlimited, {promotion_info}"
 
     @property
     def quantity(self):
@@ -237,6 +257,8 @@ class NonStockedProduct(Product):
             raise ValueError("Quantity to buy must be a number greater than zero.")
 
         # Calculate and return the total cost
+        if self.promotion:
+            return self.promotion.apply_promotion(self, quantity)
         return self._price * quantity
 
 
@@ -276,8 +298,9 @@ class LimitedProduct(Product):
                  Quantity: Limited to Y per order".
         """
         if self.active:
+            promotion_info = f"Promotion: {self.promotion.name}" if self.promotion else "Promotion: None"
             return (f"{self.name}, Price: {self.price}, "
-                    f"Quantity: Limited to {self.maximum} per order!")
+                    f"Quantity: Limited to {self.maximum} per order!, {promotion_info}")
         return f"{self.name} is out of stock."
 
     @property
@@ -309,12 +332,14 @@ class LimitedProduct(Product):
         if not isinstance(quantity, int) or quantity <= 0:
             raise ValueError("Quantity to buy must be a number greater than zero.")
         if quantity > self.maximum:
-            raise ValueError(f"Only {self.maximum} is allowed from this product!")
+            raise ValueError(f"Only {self.maximum} is allowed from [{self.name}]!")
         if self.quantity < quantity:
             raise ValueError(f"Quantity requested for {self.name} is larger than what exists.")
 
         # Update the quantity
         self.quantity = self.quantity - quantity
 
-        # Calculate and return the total cost
+        if self.promotion:
+            return self.promotion.apply_promotion(self, quantity)
+
         return self._price * quantity

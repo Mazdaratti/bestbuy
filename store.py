@@ -193,6 +193,6 @@ class Store:
             total_price = self.order(order_items)
             if total_price:
                 print("*" * 8)
-                print(f"Order made! Total payment: ${total_price:.2f}.")
+                print(f"Order made! Total payment: ${total_price:.1f}")
         except ValueError as amount_error:
             print(f"Error while making order! {amount_error}")

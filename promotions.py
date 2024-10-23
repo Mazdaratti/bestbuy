@@ -129,4 +129,4 @@ class PercentDiscount(Promotion):
         Returns:
             float: The discount coefficient to be applied to the price.
         """
-        return product.price * (100 - self._percent) / 100
+        return product.price * (100 - self._percent) / 100 * quantity

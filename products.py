@@ -80,7 +80,7 @@ class Product:
         """
         if self.active:
             promotion_info = f"Promotion: {self.promotion.name}" if self.promotion else "Promotion: None"
-            return f"Name: {self.name}, Price: {self.price}, Quantity: {self.quantity}, {promotion_info}"
+            return f"{self.name}, Price: {self.price}, Quantity: {self.quantity}, {promotion_info}"
         return f"{self.name} is out of stock."
 
     @property
@@ -298,7 +298,8 @@ class LimitedProduct(Product):
                  Quantity: Limited to Y per order".
         """
         if self.active:
-            promotion_info = f"Promotion: {self.promotion.name}" if self.promotion else "Promotion: None"
+            promotion_info = f"Promotion: {self.promotion.name}" if self.promotion \
+                              else "Promotion: None"
             return (f"{self.name}, Price: {self.price}, "
                     f"Quantity: Limited to {self.maximum} per order!, {promotion_info}")
         return f"{self.name} is out of stock."

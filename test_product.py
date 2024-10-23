@@ -75,12 +75,12 @@ def test_product_hash():
 def test_product_str():
     """Test the __str__ method for displaying the product details."""
     product = Product("Apple", 1.5, 10)
-    assert str(product) == "Name: Apple, Price: 1.5, Quantity: 10, Promotion: None"
+    assert str(product) == "Apple, Price: 1.5, Quantity: 10, Promotion: None"
 
     # Test with an active product with a promotion
     mock_promotion = PercentDiscount(name="10% Off", percent=10)
     product.promotion = mock_promotion
-    assert str(product) == "Name: Apple, Price: 1.5, Quantity: 10, Promotion: 10% Off"
+    assert str(product) == "Apple, Price: 1.5, Quantity: 10, Promotion: 10% Off"
 
     # Test with an inactive product
     product.active = False

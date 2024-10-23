@@ -74,7 +74,9 @@ class Product:
         Returns:
             str: The product details
         """
-        return f"{self.name}, Price: {self._price}, Quantity: {self._quantity}"
+        if self.active:
+            return f"{self.name}, Price: {self.price}, Quantity: {self.quantity}"
+        return f"{self.name} is out of stock."
 
     @property
     def name(self):
